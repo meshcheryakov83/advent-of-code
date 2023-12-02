@@ -7,37 +7,22 @@ var games = File.ReadAllLines("in.txt")
         var gameNumber = int.Parse(parts[0].Split(" ")[1]);
         var gameSets = parts[1].Split(";").Select(gs =>
         {
-            var gameSetParts = gs.Split(",").Select(gp =>
-            {
-                var cubeInfos = gp.Trim().Split(" ");
-                var count = int.Parse(cubeInfos[0]);
-                var color = cubeInfos[1].Trim();
-                return (color, count);
-            }).ToArray();
-
             var gameSet = new Dictionary<string, int> { [RED] = 0, [GREEN] = 0, [BLUE] = 0 };
-            foreach (var gameSetPart in gameSetParts)
+            foreach (var game in gs.Split(","))
             {
-                gameSet[gameSetPart.color] = gameSetPart.count;
+                var cubes = game.Trim().Split(" ");
+                gameSet[cubes[1].Trim()] = int.Parse(cubes[0]);
             }
-
             return gameSet;
         }).ToArray();
         return (gameNumber, gameSets);
     }).ToArray();
 
-var part1 = games.Sum(x =>
-{
-    return x.gameSets.Any(x => x[RED] > 12 || x[BLUE] > 14 || x[GREEN] > 13) ? 0 : x.gameNumber;
-});
+var part1 = games.Sum(g => g.gameSets.Any(x => x[RED] > 12 || x[BLUE] > 14 || x[GREEN] > 13) ? 0 : g.gameNumber);
 
-var part2 = games.Sum(x =>
-{
-    var green = Math.Max(x.gameSets.Max(x => x[GREEN]), 1);
-    var blue = Math.Max(x.gameSets.Max(x => x[BLUE]), 1);
-    var red = Math.Max(x.gameSets.Max(x => x[RED]), 1);
-    return red * green * blue;
-});
+var part2 = games.Sum(g => Math.Max(g.gameSets.Max(x => x[GREEN]), 1) *
+                           Math.Max(g.gameSets.Max(x => x[BLUE]), 1) *
+                           Math.Max(g.gameSets.Max(x => x[RED]), 1));
 
 Console.WriteLine("part1: " + part1);
 Console.WriteLine("part2: " + part2);
