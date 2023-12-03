@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-var lines = File.ReadAllLines("in.txt").Select(x => x + ".").ToArray();
+﻿var lines = File.ReadAllLines("in.txt").Select(x => x + ".").ToArray();
 
 var gears = new Dictionary<(int x, int y), List<int>>();
 var neighbors = new Dictionary<(int x, int y), (int x, int y)>();
@@ -58,10 +56,7 @@ for (int y = 0; y < lines.Length; y++)
 }
 
 var part1 = gears.Sum(x => x.Value.Sum());
-Debug.Assert(part1 == 536576);
-Console.WriteLine($"part2: {part1}");
+Console.WriteLine($"part1: {part1}");
 
 var part2 = gears.Where(x => x.Value.Count == 2).Sum(x => x.Value[0] * x.Value[1]);
-Debug.Assert(part2 == 75741499);
-
 Console.WriteLine($"part2: {part2}");
