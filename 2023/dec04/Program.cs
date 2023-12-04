@@ -1,10 +1,9 @@
 ﻿var wins = File.ReadAllLines("in.txt")
     .Select(x =>
     {
-        int[] parseNumbers(string str) => str.Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
         var parts = x.Split(":|".ToCharArray());
-        var targetNumbers = parseNumbers(parts[1]);
-        var numbers = parseNumbers(parts[2]);
+        var targetNumbers = ParseNumbers(parts[1]);
+        var numbers = ParseNumbers(parts[2]);
         var winNumber = numbers.Intersect(targetNumbers).Count();
         return winNumber;
     }).ToArray();
@@ -19,3 +18,5 @@ for (int ind = 0; ind < wins.Length; ind++)
 }
 var part2 = cardsCount.Sum();
 Console.WriteLine("part 2: " + part2);
+
+int[] ParseNumbers(string str) => str.Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
