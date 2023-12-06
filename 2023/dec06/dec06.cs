@@ -1,24 +1,32 @@
-﻿Console.WriteLine("part 1: " + GetAnswer(
-    new long[] { 49, 78, 79, 80 },
-    new long[] { 298, 1185, 1066, 1181 }));
+﻿using System.Diagnostics;
 
-Console.WriteLine("part 2: " + GetAnswer(
-    new long[] { 49_78_79_80 },
-    new long[] { 298_1185_1066_1181 }));
+var lines = File.ReadAllLines("in.txt");
+var l1nums = lines[0].Split(":")[1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+var l2nums = lines[1].Split(":")[1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-long GetAnswer(long[] times, long[] prevRecords)
+var part1 = Solve(
+    l1nums.Select(long.Parse).ToArray(),
+    l2nums.Select(long.Parse).ToArray());
+Debug.Assert(part1 == 2269432);
+Console.WriteLine("part 1: " + part1);
+
+var part2 = Solve(
+    new[] { long.Parse(string.Join("", l1nums)) },
+    new[] { long.Parse(string.Join("", l2nums)) });
+Debug.Assert(part2 == 35865985);
+Console.WriteLine("part 2: " + part2);
+
+long Solve(long[] times, long[] records)
 {
     long mul = 1;
     for (int i = 0; i < times.Length; i++)
     {
         var time = times[i];
-        var prevRecord = prevRecords[i];
-        var sqrtD = Math.Sqrt(time * time - 4 * prevRecord);
-        var x2 = (time - sqrtD) / 2;
-        var x1 = (time + sqrtD) / 2;
-        var from = Math.Floor(x2) <= x2 ? Math.Floor(x2) + 1 : Math.Floor(x2);
-        var to = Math.Floor(x1) >= x1 ? Math.Floor(x1) - 1 : Math.Floor(x1);
-        var numOfWays = to - from + 1;
+        var record = records[i];
+        var sqrtD = Math.Sqrt(time * time - 4 * record);
+        var x1 = (time - sqrtD) / 2;
+        var x2 = (time + sqrtD) / 2;
+        var numOfWays = Math.Ceiling(x2 - 1) - Math.Floor(x1 + 1) + 1;
         mul *= (int)numOfWays;
     }
 
