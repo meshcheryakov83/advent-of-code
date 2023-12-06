@@ -4,7 +4,7 @@ var lines = File.ReadAllLines("in.txt");
 var seeds = lines[0].Split(":")[1].Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(long.Parse).ToArray();
 
 var categoriesMaps = new List<List<(long destStart, long srcStart, long len)>>();
-for (int i = 1; i < lines.Length; i++)
+for (var i = 1; i < lines.Length; i++)
 {
     if (string.IsNullOrWhiteSpace(lines[i]))
     {
@@ -19,19 +19,16 @@ for (int i = 1; i < lines.Length; i++)
 
 var part1 = Solve(seeds.SelectMany(x => new[] { x, 1 }).ToArray(), categoriesMaps);
 Debug.Assert(part1 == 214922730);
-Console.WriteLine("part1: " + part1);
+Console.WriteLine($"part1: {part1}");
 
 var part2 = Solve(seeds, categoriesMaps);
-Console.WriteLine("part2: " + part2);
+Console.WriteLine($"part2: {part2}");
 Debug.Assert(part2 == 148041808);
 
 long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> categoriesMaps)
 {
-    List<Range> ranges = new();
-    for (int i = 0; i < seeds.Length; i += 2)
-    {
-        ranges.Add(new Range(seeds[i], seeds[i] + seeds[i + 1]));
-    }
+    var ranges = Enumerable.Range(0, seeds.Length).Where(x => x % 2 == 0)
+        .Select(i => new Range(seeds[i], seeds[i] + seeds[i + 1])).ToList();
 
     foreach (var categoryMaps in categoriesMaps)
     {
@@ -82,7 +79,6 @@ long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> c
     }
 
     return ranges.Min(x => x.from);
-
 }
 
-record Range(long from, long to);
+internal record Range(long from, long to);
