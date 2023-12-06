@@ -22,8 +22,8 @@ Debug.Assert(part1 == 214922730);
 Console.WriteLine($"part1: {part1}");
 
 var part2 = Solve(seeds, categoriesMaps);
-Console.WriteLine($"part2: {part2}");
 Debug.Assert(part2 == 148041808);
+Console.WriteLine($"part2: {part2}");
 
 long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> categoriesMaps)
 {
@@ -32,7 +32,7 @@ long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> c
 
     foreach (var categoryMaps in categoriesMaps)
     {
-        var added = new List<Range>();
+        var mappedRanges = new List<Range>();
         foreach (var map in categoryMaps)
         {
             var srcRange = new Range(map.srcStart, map.srcStart + map.len);
@@ -43,39 +43,39 @@ long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> c
             {
                 ranges.Remove(range);
 
-                // [ ] ( )
+                // [ ] ( ) or ( ) [ ] - no intersections - return range to ranges as is
                 if (range.from >= srcRange.to || range.to <= srcRange.from)
                 {
                     ranges.Add(range);
                 }
-                // [ (  ]  )
+                // [ (  ]  ) - map intersection and other part return to ranges collection as is
                 else if (range.from >= srcRange.from && range.from < srcRange.to && range.to > srcRange.to)
                 {
-                    added.Add(new Range(range.from + shift, srcRange.to + shift));
+                    mappedRanges.Add(new Range(range.from + shift, srcRange.to + shift));
                     ranges.Add(new Range(srcRange.to, range.to));
                 }
-                // [ (    ) ]
+                // [ (    ) ] - map intersection
                 else if (range.from >= srcRange.from && range.to <= srcRange.to)
                 {
-                    added.Add(new Range(range.from + shift, range.to + shift));
+                    mappedRanges.Add(new Range(range.from + shift, range.to + shift));
                 }
-                // ( [ )  ]
+                // ( [ )  ] - return non intersection part to ranges as is and map another part
                 else if (range.from < srcRange.from && range.to > srcRange.from && range.to < srcRange.to)
                 {
                     ranges.Add(new Range(range.from, srcRange.from));
-                    added.Add(new Range(srcRange.from + shift, range.to + shift));
+                    mappedRanges.Add(new Range(srcRange.from + shift, range.to + shift));
                 }
-                // ( [   ] )
+                // ( [   ] ) - two parts at the begining and at end return as is and map part in the middle
                 else if (range.from < srcRange.from && range.to > srcRange.to)
                 {
                     ranges.Add(new Range(range.from, srcRange.from));
-                    added.Add(new Range(destRange.from, destRange.to));
+                    mappedRanges.Add(new Range(destRange.from, destRange.to));
                     ranges.Add(new Range(srcRange.to, range.to));
                 }
             }
         }
-
-        ranges.AddRange(added);
+        // after applying all the mappings from category, put newly mapped ranges into the ranges
+        ranges.AddRange(mappedRanges);
     }
 
     return ranges.Min(x => x.from);
