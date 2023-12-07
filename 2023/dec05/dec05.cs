@@ -49,7 +49,7 @@ long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> c
                 {
                     if (part.IsInside(srcRange))
                     {
-                        mappedRanges.Add(part.Shift(shift));
+                        mappedRanges.Add(new Range(part.from + shift, part.to + shift));
                     }
                     else
                     {
@@ -58,6 +58,7 @@ long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> c
                 }
             }
         }
+
         ranges.AddRange(mappedRanges);
     }
 
@@ -66,25 +67,16 @@ long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> c
 
 internal record Range(long from, long to)
 {
-    public List<Range> SplitWith(Range range)
+    public IEnumerable<Range> SplitWith(Range range)
     {
-        var ranges = new List<Range>();
-        if (range.from >= to || range.to <= from)
-        {
-            ranges.Add(range);
-            ranges.Add(this);
-        }
-        else
-        {
-            ranges.Add(new Range(Math.Min(from, range.from), Math.Max(from, range.from)));
-            ranges.Add(new Range(Math.Max(from, range.from), Math.Min(to, range.to)));
-            ranges.Add(new Range(Math.Min(to, range.to), Math.Max(to, range.to)));
-        }
+        if (range.from >= to || range.to <= from) return [range, this];
 
-        return ranges;
+        return [
+            new Range(Math.Min(from, range.from), Math.Max(from, range.from)),
+            new Range(Math.Max(from, range.from), Math.Min(to, range.to)),
+            new Range(Math.Min(to, range.to), Math.Max(to, range.to))
+        ];
     }
 
     public bool IsInside(Range range) => range.from <= from && to <= range.to;
-
-    public Range Shift(long x) => new(from + x, to + x);
 };
