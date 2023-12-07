@@ -43,42 +43,48 @@ long Solve(long[] seeds, List<List<(long destStart, long srcStart, long len)>> c
             {
                 ranges.Remove(range);
 
-                // [ ] ( ) or ( ) [ ] - no intersections - return range to ranges as is
-                if (range.from >= srcRange.to || range.to <= srcRange.from)
+                var parts = range.SplitWith(srcRange);
+
+                foreach (var part in parts.Where(x => x.IsInside(range)))
                 {
-                    ranges.Add(range);
-                }
-                // [ (  ]  ) - map intersection and other part return to ranges collection as is
-                else if (range.from >= srcRange.from && range.from < srcRange.to && range.to > srcRange.to)
-                {
-                    mappedRanges.Add(new Range(range.from + shift, srcRange.to + shift));
-                    ranges.Add(new Range(srcRange.to, range.to));
-                }
-                // [ (    ) ] - map intersection
-                else if (range.from >= srcRange.from && range.to <= srcRange.to)
-                {
-                    mappedRanges.Add(new Range(range.from + shift, range.to + shift));
-                }
-                // ( [ )  ] - return non intersection part to ranges as is and map another part
-                else if (range.from < srcRange.from && range.to > srcRange.from && range.to < srcRange.to)
-                {
-                    ranges.Add(new Range(range.from, srcRange.from));
-                    mappedRanges.Add(new Range(srcRange.from + shift, range.to + shift));
-                }
-                // ( [   ] ) - two parts at the begining and at end return as is and map part in the middle
-                else if (range.from < srcRange.from && range.to > srcRange.to)
-                {
-                    ranges.Add(new Range(range.from, srcRange.from));
-                    mappedRanges.Add(new Range(destRange.from, destRange.to));
-                    ranges.Add(new Range(srcRange.to, range.to));
+                    if (part.IsInside(srcRange))
+                    {
+                        mappedRanges.Add(part.Shift(shift));
+                    }
+                    else
+                    {
+                        ranges.Add(part);
+                    }
                 }
             }
         }
-        // after applying all the mappings from category, put newly mapped ranges into the ranges
         ranges.AddRange(mappedRanges);
     }
 
     return ranges.Min(x => x.from);
 }
 
-internal record Range(long from, long to);
+internal record Range(long from, long to)
+{
+    public List<Range> SplitWith(Range range)
+    {
+        var ranges = new List<Range>();
+        if (range.from >= to || range.to <= from)
+        {
+            ranges.Add(range);
+            ranges.Add(this);
+        }
+        else
+        {
+            ranges.Add(new Range(Math.Min(from, range.from), Math.Max(from, range.from)));
+            ranges.Add(new Range(Math.Max(from, range.from), Math.Min(to, range.to)));
+            ranges.Add(new Range(Math.Min(to, range.to), Math.Max(to, range.to)));
+        }
+
+        return ranges;
+    }
+
+    public bool IsInside(Range range) => range.from <= from && to <= range.to;
+
+    public Range Shift(long x) => new(from + x, to + x);
+};
