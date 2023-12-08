@@ -50,8 +50,8 @@ long Part2()
         instrIndex++;
     }
 
-    return steps.
-        Select(x => ToPrimes(x))
+    return steps
+        .Select(x => ToPrimes(x))
         .SelectMany(x => x.GroupBy(x => x))
         .GroupBy(x=>x.Key)
         .Select(x=>(x.Key, x.MaxBy(y=>y.Count()).Count()))
