@@ -50,28 +50,17 @@ long Part2()
         instrIndex++;
     }
 
-    return steps
-        .Select(x => ToPrimes(x))
-        .SelectMany(x => x.GroupBy(x => x))
-        .GroupBy(x=>x.Key)
-        .Select(x=>(x.Key, x.MaxBy(y=>y.Count()).Count()))
-        .Aggregate((long)1, (i, tuple) => i*(long)Math.Pow(tuple.Key, tuple.Item2));
+    return steps.Aggregate((long)steps[0], (i1, i2) => i1 * i2 / GCD(i1, i2));
 }
 
-IEnumerable<long> ToPrimes(long n)
+long GCD(long a, long b)
 {
-    var i = 2;
-
-    while (n > 1)
+    while (b != 0)
     {
-        if (n % i == 0)
-        {
-            n /= i;
-            yield return i;
-        }
-        else
-        {
-            i++;
-        }
+        long temp = b;
+        b = a % b;
+        a = temp;
     }
+
+    return a;
 }
